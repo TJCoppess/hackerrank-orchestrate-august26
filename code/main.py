@@ -91,6 +91,7 @@ def run(argv: list[str] | None = None) -> int:
 
     written = 0
     fallback_count = 0
+    system_fallback_count = 0
     failed = 0
 
     if pending:
@@ -103,6 +104,8 @@ def run(argv: list[str] | None = None) -> int:
                 written += 1
                 if result.used_fallback:
                     fallback_count += 1
+                    if result.diagnostics.system_failure:
+                        system_fallback_count += 1
                     print(f"  fallback: {result.error or 'model did not finalize'}")
                 print(
                     f"  wrote {result.classification.action.value}/"
@@ -122,9 +125,10 @@ def run(argv: list[str] | None = None) -> int:
     print(
         "summary: "
         f"written={written} skipped={skipped} "
-        f"fallback={fallback_count} failed={failed} output={output_path}"
+        f"fallback={fallback_count} system_fallback={system_fallback_count} "
+        f"failed={failed} output={output_path}"
     )
-    return 1 if failed else 0
+    return 1 if failed or (full_run and system_fallback_count) else 0
 
 
 if __name__ == "__main__":

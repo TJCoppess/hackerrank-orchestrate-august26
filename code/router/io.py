@@ -143,10 +143,17 @@ class OutputStore:
         self.output_path = output_path.resolve()
         self.message_ids = [message.message_id for message in messages]
         self._message_id_set = set(self.message_ids)
+        self.incoming_user_by_id = {
+            message.message_id: message.user_id for message in messages
+        }
         history_rows = _read_csv(
             self.dataset_dir / "message_history.csv", ["message_id"]
         )
         self.history_ids = {row["message_id"].strip() for row in history_rows}
+        self.history_user_by_id = {
+            row["message_id"].strip(): row.get("user_id", "").strip()
+            for row in history_rows
+        }
         self._ensure_output_exists()
         self.validate(require_complete=False)
 
@@ -210,6 +217,9 @@ class OutputStore:
             raise OutputContractError(
                 "unknown historical evidence IDs: " + ", ".join(sorted(unknown_evidence))
             )
+        self.validate_evidence_owner(
+            self.incoming_user_by_id[message_id], classification.evidence_message_ids
+        )
 
         rows = self._load_rows()
         matches = [row for row in rows if row["message_id"] == message_id]
@@ -231,6 +241,18 @@ class OutputStore:
             }
         )
         self._atomic_write(rows)
+
+    def validate_evidence_owner(self, user_id: str, evidence_ids: list[str]) -> None:
+        wrong_user = [
+            evidence_id
+            for evidence_id in evidence_ids
+            if self.history_user_by_id.get(evidence_id) != user_id
+        ]
+        if wrong_user:
+            raise OutputContractError(
+                "historical evidence does not belong to the active user: "
+                + ", ".join(sorted(wrong_user))
+            )
 
     def validate(self, require_complete: bool) -> None:
         rows = self._load_rows()
@@ -284,3 +306,6 @@ class OutputStore:
                         f"unknown evidence IDs for {row['message_id']}: "
                         + ", ".join(sorted(unknown))
                     )
+                self.validate_evidence_owner(
+                    self.incoming_user_by_id[row["message_id"]], evidence_ids
+                )
