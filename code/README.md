@@ -4,7 +4,8 @@ This Python 3.10+ CLI processes WhatsApp messages sequentially through a
 LangGraph workflow backed by GPT-5.6 Sol. Phase 2 adds deterministic scam
 analysis, user-scoped Pandas/RapidFuzz retrieval, GPT-5.6 Luna image extraction,
 and `gpt-transcribe` voice transcription. Sol remains the sole classifier; media
-models only extract evidence.
+models only extract evidence. Phase 3 adds resilient provider retries, safe JSONL
+execution traces, and deterministic multi-factor evaluation with a four-panel dashboard.
 
 ## Setup
 
@@ -44,7 +45,10 @@ Useful options:
 - `--limit N` processes at most `N` selected messages.
 - `--force` replaces already completed predictions.
 - `--dataset-dir PATH` changes the input directory.
+- `--input PATH` selects the incoming-message CSV.
 - `--output PATH` changes the output CSV path.
+- `--trace PATH` changes the append-only execution trace.
+- `--no-color` disables ANSI terminal colors.
 
 Configuration is read from environment variables:
 
@@ -78,5 +82,37 @@ Media API failures are returned to Sol as structured evidence and cap final
 confidence at `0.60`. Exhausted graph retries and system exceptions still write
 a conservative `digest/unknown` row so the output remains complete. These are
 marked as system failures in `RoutingResult.diagnostics`; a full CLI run exits
-nonzero if any occur. The diagnostics object is serializable for the future
-`evaluation/main.py` accuracy, F1, evidence, and failure-segmentation pipeline.
+nonzero if any occur. The queue exits `0` on clean completion, `1` if any
+selected message uses a system fallback, and `2` for configuration or dataset
+errors.
+
+Sol, Luna, and transcription transport calls make at most three attempts with
+0.5 and 1.0 second backoffs. Nested SDK retries are disabled. Voice uploads are
+identified from magic bytes and sent with a matching synthetic filename and MIME
+type; `gpt-transcribe` uses `response_format="json"` and reads `languages[*].code`.
+
+Traces default to `logs/execution_trace.jsonl`. They contain tool names, timing,
+retry categories, diagnostics, and final classifications, but never source
+message bodies, OCR, transcripts, history text, raw media/base64, secrets, raw
+provider error bodies, or hidden chain-of-thought. The root `/logs/` directory is
+git-ignored.
+
+## Evaluate
+
+Route and evaluate all labeled sample messages:
+
+```powershell
+code/.venv/Scripts/python code/evaluate/main.py --run-pipeline --force
+```
+
+Rescore existing artifacts without any API calls:
+
+```powershell
+code/.venv/Scripts/python code/evaluate/main.py --predictions logs/sample_predictions.csv --trace logs/evaluation_trace.jsonl
+```
+
+The evaluator checks exact ID coverage, computes action accuracy with a false
+urgency penalty, evidence citation F1, entity/intent preservation, tool workflow
+health, per-class precision/recall/F1, ten-bin ECE, and modality splits. It writes
+`eval_metrics.json`, `eval_per_message.csv`, and `eval_dashboard.png` under
+`logs/`.

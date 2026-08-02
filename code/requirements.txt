@@ -4,3 +4,5 @@ pydantic==2.13.4
 openai==2.52.0
 pandas==2.3.3
 rapidfuzz==3.14.5
+matplotlib==3.10.8
+seaborn==0.13.2

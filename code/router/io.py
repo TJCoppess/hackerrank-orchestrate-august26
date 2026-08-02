@@ -74,11 +74,14 @@ def _resolve_media_path(dataset_dir: Path, relative_path: str) -> Path:
     return candidate
 
 
-def load_messages(dataset_dir: Path) -> list[IncomingMessage]:
+def load_messages(
+    dataset_dir: Path, input_path: Path | None = None
+) -> list[IncomingMessage]:
     dataset_dir = dataset_dir.resolve()
     image_paths = _load_media_map(dataset_dir / "images.csv", "image_id")
     audio_paths = _load_media_map(dataset_dir / "voice_notes.csv", "voice_note_id")
-    rows = _read_csv(dataset_dir / "messages.csv", MESSAGE_COLUMNS)
+    source_path = (input_path or dataset_dir / "messages.csv").resolve()
+    rows = _read_csv(source_path, MESSAGE_COLUMNS)
 
     messages: list[IncomingMessage] = []
     seen_ids: set[str] = set()
@@ -128,7 +131,7 @@ def load_messages(dataset_dir: Path) -> list[IncomingMessage]:
             )
         )
     if not messages:
-        raise DatasetError("messages.csv contains no messages")
+        raise DatasetError(f"{source_path.name} contains no messages")
     return messages
 
 

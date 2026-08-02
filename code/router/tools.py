@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import json
+import inspect
+import time
 from typing import Any
 
 from langchain_core.messages import ToolMessage
@@ -22,6 +24,7 @@ from .models import (
 )
 from .retrieval import HistoryRepository
 from .scam import scan_message
+from .tracing import TraceRecorder
 
 
 def _tool_message(tool_call_id: str, payload: Any) -> ToolMessage:
@@ -48,21 +51,44 @@ def create_phase2_tools(
     output_store: OutputStore,
     history_repository: HistoryRepository,
     media_processor: MediaProcessor,
+    trace: TraceRecorder | None = None,
 ) -> list[BaseTool]:
+    def started(name: str, state: RouterState) -> float:
+        if trace is not None:
+            trace.emit("tool_start", message_id=state["incoming"].message_id, tool=name)
+            trace.show(f"  tool {name}", "blue")
+        return time.perf_counter()
+
+    def ended(name: str, state: RouterState, started_at: float, status: str = "ok", **extra: Any) -> None:
+        if trace is not None:
+            trace.emit(
+                "tool_end", message_id=state["incoming"].message_id, tool=name,
+                status=status, duration_ms=round((time.perf_counter() - started_at) * 1000, 2),
+                **extra,
+            )
+
+    def call_media(method: Any, path: Any, message_id: str) -> Any:
+        """Keep injected test/custom processors compatible with the Phase 2 interface."""
+        return method(path, message_id) if len(inspect.signature(method).parameters) >= 2 else method(path)
+
     @tool("process_image")
     def process_image(
         state: Annotated[RouterState, InjectedState],
         tool_call_id: Annotated[str, InjectedToolCallId],
     ) -> Command:
         """Extract structured OCR and visual evidence from this message's image."""
+        began = started("process_image", state)
         cached = state.get("image_extraction")
         result = cached or (
-            media_processor.process_image(state["incoming"].image_path)
+            call_media(media_processor.process_image,
+                state["incoming"].image_path, state["incoming"].message_id
+            )
             if state["incoming"].image_path is not None
             else ImageExtractionResult(
                 status=ToolStatus.ERROR, error="current message has no image path"
             )
         )
+        ended("process_image", state, began, result.status.value, cached=bool(cached), error_category=result.error_category)
         return Command(
             update={
                 "image_extraction": result,
@@ -77,14 +103,18 @@ def create_phase2_tools(
         tool_call_id: Annotated[str, InjectedToolCallId],
     ) -> Command:
         """Transcribe this message's voice note verbatim into untrusted evidence text."""
+        began = started("process_audio", state)
         cached = state.get("audio_transcription")
         result = cached or (
-            media_processor.process_audio(state["incoming"].audio_path)
+            call_media(media_processor.process_audio,
+                state["incoming"].audio_path, state["incoming"].message_id
+            )
             if state["incoming"].audio_path is not None
             else AudioTranscriptionResult(
                 status=ToolStatus.ERROR, error="current message has no audio path"
             )
         )
+        ended("process_audio", state, began, result.status.value, cached=bool(cached), error_category=result.error_category)
         return Command(
             update={
                 "audio_transcription": result,
@@ -99,6 +129,7 @@ def create_phase2_tools(
         tool_call_id: Annotated[str, InjectedToolCallId],
     ) -> Command:
         """Run deterministic scam-risk checks on current text and extracted media text."""
+        began = started("scan_scam_heuristics", state)
         cached = state.get("scam_scan")
         official_domain, sender_domain = history_repository.business_domains(
             state["incoming"].business_id
@@ -106,6 +137,7 @@ def create_phase2_tools(
         result = cached or scan_message(
             state["incoming"], effective_text(state), official_domain, sender_domain
         )
+        ended("scan_scam_heuristics", state, began, cached=bool(cached), risk_score=result.risk_score)
         return Command(
             update={
                 "scam_scan": result,
@@ -123,8 +155,10 @@ def create_phase2_tools(
         tool_call_id: Annotated[str, InjectedToolCallId],
     ) -> Command:
         """Find up to five relevant prior messages for the active user and return context."""
+        began = started("query_user_history", state)
         cached = state.get("history_search")
         result = cached or history_repository.search(state["incoming"], search_term)
+        ended("query_user_history", state, began, cached=bool(cached), match_count=len(result.matches))
         return Command(
             update={
                 "history_search": result,
@@ -144,6 +178,7 @@ def create_phase2_tools(
         tool_call_id: Annotated[str, InjectedToolCallId],
     ) -> Command:
         """Validate and persist the one final classification for the current message."""
+        began = started("write_final_classification", state)
         classification = Classification(
             action=action,
             message_type=message_type,
@@ -176,6 +211,14 @@ def create_phase2_tools(
                 )
 
         output_store.upsert(incoming.message_id, classification)
+        ended("write_final_classification", state, began, action=classification.action.value)
+        if trace is not None:
+            trace.emit(
+                "classification", message_id=incoming.message_id,
+                classification=classification.model_dump(mode="json"), degraded=any(
+                    result and result.status == ToolStatus.ERROR for result in media_results
+                ), system_failure=False,
+            )
         result = {
             "message_id": incoming.message_id,
             "status": "written",

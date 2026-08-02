@@ -1,111 +1,111 @@
 message_id,action,message_type,reason,confidence,evidence_message_ids
-msg_023,,,,,
-msg_091,,,,,
-msg_090,,,,,
-msg_048,,,,,
-msg_040,,,,,
-msg_075,,,,,
-msg_005,,,,,
-msg_104,,,,,
-msg_069,,,,,
-msg_107,,,,,
-msg_070,,,,,
-msg_003,,,,,
-msg_099,,,,,
-msg_008,,,,,
-msg_092,,,,,
-msg_060,,,,,
-msg_004,,,,,
-msg_030,,,,,
-msg_045,,,,,
-msg_052,,,,,
-msg_009,,,,,
-msg_071,,,,,
-msg_016,,,,,
-msg_065,,,,,
-msg_038,,,,,
-msg_086,,,,,
-msg_014,,,,,
-msg_094,,,,,
-msg_029,,,,,
-msg_105,,,,,
-msg_002,,,,,
-msg_010,,,,,
-msg_078,,,,,
-msg_013,,,,,
-msg_018,,,,,
-msg_044,,,,,
-msg_032,,,,,
-msg_106,,,,,
-msg_006,,,,,
-msg_109,,,,,
-msg_108,,,,,
-msg_019,,,,,
-msg_088,,,,,
-msg_056,,,,,
-msg_027,,,,,
-msg_050,,,,,
-msg_083,,,,,
-msg_063,,,,,
-msg_033,,,,,
-msg_061,,,,,
-msg_020,,,,,
-msg_017,,,,,
-msg_058,,,,,
-msg_026,,,,,
-msg_047,,,,,
-msg_046,,,,,
-msg_042,,,,,
-msg_079,,,,,
-msg_098,,,,,
-msg_037,,,,,
-msg_007,,,,,
-msg_085,,,,,
-msg_001,,,,,
-msg_021,,,,,
-msg_028,,,,,
-msg_012,,,,,
-msg_064,,,,,
-msg_103,,,,,
-msg_031,,,,,
-msg_057,,,,,
-msg_087,,,,,
-msg_067,,,,,
-msg_039,,,,,
-msg_082,,,,,
-msg_066,,,,,
-msg_049,,,,,
-msg_015,,,,,
-msg_051,,,,,
-msg_097,,,,,
-msg_089,,,,,
-msg_053,,,,,
-msg_059,,,,,
-msg_024,,,,,
-msg_072,,,,,
-msg_036,,,,,
-msg_076,,,,,
-msg_055,,,,,
-msg_102,,,,,
-msg_080,,,,,
-msg_093,,,,,
-msg_034,,,,,
-msg_035,,,,,
-msg_101,,,,,
-msg_041,,,,,
-msg_011,,,,,
-msg_110,,,,,
-msg_095,,,,,
-msg_074,,,,,
-msg_073,,,,,
-msg_054,,,,,
-msg_068,,,,,
-msg_100,,,,,
-msg_062,,,,,
-msg_096,,,,,
-msg_043,,,,,
-msg_077,,,,,
-msg_081,,,,,
-msg_025,,,,,
-msg_084,,,,,
-msg_022,,,,,
+msg_023,notify,payment,Verified bank account/card payment update with low scam risk and strong prior user engagement.,0.94,message_0243;message_0101;message_0102
+msg_091,mute,scam,"Requests a one-time login code under an urgent account-expiry pretext, indicating credential theft.",0.99,none
+msg_090,digest,personal,A low-risk personal identity check about a non-urgent package mix-up can wait for later review.,0.91,none
+msg_048,mute,scam,Unverified forwarded group message pressures immediate QR payment under threat of access-card blocking.,0.95,none
+msg_040,mute,forward,"Chain-forward message uses superstition and pressure to encourage repetitive sharing, with no useful or urgent content.",0.99,none
+msg_075,notify,urgent,A verified ride service reports a time-sensitive pickup or route change for a ride booked today.,0.98,message_0205;message_0206
+msg_005,notify,urgent,"Time-sensitive pickup confirmation is needed by 6 PM today, and prior similar messages from this sender received quick replies.",0.96,message_0065;message_0332;message_0382
+msg_104,notify,personal,Direct pickup coordination has a clear 6 PM deadline and requests a timely confirmation.,0.90,message_0224;message_0383
+msg_069,mute,forward,Generic high-forward-count group greeting asks recipients to reshare and has low immediate value.,0.98,none
+msg_107,mute,scam,"Requests a private OTP to keep wallet payments active, a credential-theft pattern.",0.99,none
+msg_070,mute,scam,"Uses account-blocking urgency to solicit a verification code, a clear credential-phishing pattern.",0.98,none
+msg_003,digest,business_update,Routine Amazon order progress update with no immediate action required.,0.98,none
+msg_099,digest,business_update,Non-blocking work update that should be reviewed before tomorrow's 11 AM standup.,0.97,none
+msg_008,digest,business_update,Post-purchase product review request is legitimate but non-urgent.,0.96,none
+msg_092,digest,payment,Verified card issuer sent a routine monthly statement reminder with no immediate deadline or high-risk indicators.,0.95,none
+msg_060,notify,urgent,Time-sensitive faculty deadline says required internship documents must be submitted by 5 PM today; scam risk is low despite the attached image being outdated.,0.90,none
+msg_004,digest,business_update,"Legitimate-looking health service update directs the customer to review details in the registered app, but gives no specific urgent deadline.",0.91,none
+msg_030,digest,promotion,"Local group resale offer is potentially useful but non-urgent, with no meaningful scam indicators.",0.96,none
+msg_045,notify,urgent,A delivery person is waiting at the gate and needs confirmation or pickup within 10 minutes.,0.98,none
+msg_052,mute,scam,"Refund bait urges wallet-detail verification through an unofficial link, indicating likely phishing.",0.89,none
+msg_009,digest,event,Optional cricket-watching thread planned for tonight; useful later but not interruption-worthy in a muted sports group.,0.96,message_0074;message_0073
+msg_071,digest,event,Tentative plan for tomorrow is useful but lacks a confirmed time or clear urgency.,0.91,none
+msg_016,mute,scam,Unverified account-block threat pressures recipients to use a suspicious login domain within 30 minutes.,0.98,none
+msg_065,mute,promotion,Limited-time shopping and cashback offer is unsolicited promotional content with an unsubscribe prompt.,0.98,none
+msg_038,mute,forward,Chain message pressures recipients to forward widely for supposed luck and offers no useful information.,0.99,none
+msg_086,notify,event,"Tomorrow's airport pickup time changed to 6:15 a.m., requiring timely awareness.",0.94,none
+msg_014,mute,promotion,Unsolicited first-order discount promotion with urgency language and an unsubscribe option.,0.99,none
+msg_094,digest,promotion,Time-limited retail discount offer is promotional and useful only for later review.,0.98,none
+msg_029,digest,promotion,Group marketplace listing for used clothing is non-urgent and may be useful to review later; no clear scam indicators were found.,0.94,none
+msg_105,mute,forward,"Highly forwarded health advice urges stopping prescribed tablets and substituting an unverified herbal mix, creating a clear safety risk.",0.99,none
+msg_002,notify,urgent,"Direct time-sensitive request before a client meeting, with strong prior evidence of prompt replies to similar coworker requests.",0.97,message_0169;message_0003;message_0059
+msg_010,mute,promotion,Routine post-visit feedback solicitation from a business with no urgent or actionable account information.,0.98,none
+msg_078,mute,scam,Urgent forwarded request solicits bank details and proof of submission for an unverifiable benefit approval.,0.98,none
+msg_013,mute,promotion,Group sales advertisement with a same-day discount and payment options; low scam risk but low-priority promotional content.,0.93,none
+msg_018,mute,scam,Unsolicited reward bait with artificial expiry urgency and a high forward count is suspicious.,0.96,none
+msg_044,mute,scam,"Uses account-threat urgency and asks for OTP verification, a credential-theft pattern, in a forwarded group message.",0.98,none
+msg_032,digest,personal,A non-urgent peer request for class review slides that can be handled later.,0.97,none
+msg_106,notify,event,Same-day venue and access change with a 7:15 arrival deadline requires timely attention.,0.98,none
+msg_006,digest,business_update,Society maintenance payment guidance is useful operational information but does not require an immediate interruption.,0.93,none
+msg_109,mute,scam,"Unverified group payment demand uses authority claims, urgency, and a QR-payment prompt characteristic of impersonation scams.",0.94,none
+msg_108,mute,scam,"High-risk Chase impersonation uses an unofficial domain, urgency, and a link requesting the user's PIN.",0.99,none
+msg_019,mute,scam,"Generic banking alert pressures the recipient to follow a chat link under threat of restricted access, with a business-domain mismatch signal.",0.93,none
+msg_088,notify,personal,"Direct, time-sensitive request to confirm whether the user still wants a reserved jacket.",0.96,none
+msg_056,notify,urgent,Directly mentions the user and requests a prompt confirmation about a same-day doctor appointment change.,0.98,none
+msg_027,mute,promotion,Unsolicited Ladakh travel-package advertisement with an unsubscribe prompt; low-value marketing despite only moderate domain-risk evidence.,0.98,none
+msg_050,digest,business_update,Legitimate but nonspecific healthcare account update directing the user to review details in the registered app.,0.90,none
+msg_083,digest,personal,A direct but explicitly non-urgent request to review an onboarding document tomorrow morning.,0.96,none
+msg_063,mute,scam,Unsolicited payment pressure in a group threatens account lock and requests QR payment plus screenshot confirmation.,0.97,none
+msg_033,digest,personal,A caring personal check-in with an explicitly non-urgent request to call later.,0.97,none
+msg_061,mute,forward,Chain blessing asks recipients to reshare and has been forwarded many times.,0.99,none
+msg_020,mute,scam,"Shortened link, urgent account-verification pressure, and repeated forwarding indicate a likely phishing attempt.",0.93,none
+msg_017,mute,scam,Vague unsolicited payment demand uses urgency and a service-cutoff threat without identifying the provider or charge.,0.90,none
+msg_058,mute,forward,"Highly forwarded, vague health claim with pressure to reshare offers little reliable value.",0.97,none
+msg_026,mute,scam,High-risk delivery-fee phishing uses an Amazon-impersonating non-official domain and urgent payment bait.,0.99,none
+msg_047,digest,business_update,"Useful building access update for later today, with a clear service-lift alternative and no safety risk.",0.96,none
+msg_046,mute,scam,"Requests a private OTP under urgency and account-closure pressure, indicating credential theft.",0.99,none
+msg_042,notify,urgent,Time-sensitive gate closure and towing risk require immediate action; matching prior alerts were promptly opened and answered.,0.98,message_0140
+msg_079,mute,scam,"Requests an OTP using urgent account-block threats, a clear credential-theft pattern.",0.99,none
+msg_098,notify,urgent,"Time-sensitive clinic decision requests an immediate call, with prior similar messages receiving prompt replies.",0.98,message_0226;message_0168;message_0359
+msg_037,notify,urgent,Time-sensitive water delivery requires collecting it within 10 minutes or waiting until evening.,0.98,none
+msg_007,digest,event,Non-urgent society potluck registration update with a next-Sunday deadline and no response requested.,0.98,none
+msg_085,mute,scam,High-risk bank impersonation uses an account-blocking threat to solicit an OTP.,0.99,none
+msg_001,notify,urgent,Time-sensitive water supply alert requires residents to act within 20 minutes.,0.98,none
+msg_021,notify,payment,Direct group payment reminder due today with a same-day deadline and an explicit warning against unofficial links.,0.93,none
+msg_028,mute,promotion,Limited-time travel discount is an unsolicited marketing promotion with unsubscribe language; domain mismatch adds moderate risk.,0.97,none
+msg_012,mute,forward,"Highly forwarded chain message uses vague health claims and pressure to reshare, offering little actionable value.",0.98,none
+msg_064,mute,scam,"Refund bait pressures verification of sensitive wallet and card details by a false deadline, while the attached image is an unrelated cinema promotion.",0.98,none
+msg_103,notify,personal,"Direct pickup confirmation is needed before 6 PM, and prior similar messages from this sender received quick replies.",0.96,message_0065;message_0382;message_0231
+msg_031,notify,urgent,"Operational incident follow-up requires action tonight, and similar messages from this sender receive prompt replies.",0.91,message_0118;message_0249;message_0362;message_0055
+msg_057,notify,urgent,Directly tagged operational failure needs prompt review before a client update; similar requests received fast replies.,0.97,message_0169;message_0003;message_0059;message_0266
+msg_087,mute,promotion,Unsolicited repetitive real-estate sales pitch with an opt-out prompt.,0.99,none
+msg_067,notify,payment,"Maintenance is due by 5 PM with a late-fee consequence, and similar notices from this sender received prompt engagement.",0.97,message_0029;message_0068
+msg_039,notify,payment,Direct same-day request for a school fee receipt affecting the child's field-trip registration.,0.97,none
+msg_082,notify,urgent,Voice message reports live checkout failures and requests immediate incident response.,0.99,none
+msg_066,mute,promotion,Forwarded shopping and cashback advertisement with a stale June offer period and unsubscribe language.,0.97,none
+msg_049,notify,business_update,"Same-day return pickup window requires timely preparation, though the Shopee/JioMart brand mismatch warrants caution.",0.84,none
+msg_015,mute,scam,"Requests a private OTP under a false urgency threat, a credential-theft pattern.",0.99,none
+msg_051,mute,promotion,Generic shopping discount promotion with an unsubscribe option and no urgent account action required.,0.98,none
+msg_097,digest,personal,Personal status update explicitly says nothing is urgent and suggests talking tomorrow morning.,0.98,none
+msg_089,notify,urgent,Direct lost-item notice with a same-day 7 PM pickup deadline.,0.98,none
+msg_053,digest,business_update,"Non-urgent market research update; prior similar notes were read later, and the attached chart is stale and mismatched to the text.",0.92,message_0253;message_0411;message_0161
+msg_059,mute,scam,Unsolicited benefits claim pressures recipients to share sensitive bank account details under a same-day deadline.,0.98,none
+msg_024,mute,promotion,"Repetitive shopping promotion despite prior opt-out, with matching messages previously dismissed and muted.",0.99,message_0257;message_0103
+msg_072,mute,scam,High-risk credential phishing asks for an OTP through an untrusted link and uses account-hold urgency.,0.99,none
+msg_036,mute,scam,"Exact prior message was reported and muted; sender is unverified, uses a mismatched young domain, and requests payout verification.",0.98,message_0283
+msg_076,mute,scam,"Refund bait asks the recipient to use unspecified wallet details, with domain mismatch and repeated forwarding indicating scam risk.",0.86,none
+msg_055,notify,urgent,Direct request for a call within ten minutes; prior messages from this sender received prompt replies and scam checks found no risk.,0.98,message_0387;message_0165;message_0166
+msg_102,notify,urgent,Time-sensitive operational rollback monitoring requires the recipient to remain available for the next 30 minutes.,0.98,none
+msg_080,notify,urgent,Time-sensitive request to move a car within 10 minutes before gate closure and repair-truck access.,0.98,none
+msg_093,digest,business_update,"Legitimate-looking delivery update with no payment or OTP request, but the stated delivery window has already passed.",0.91,none
+msg_034,mute,greeting,Non-urgent forwarded family-group blessing resembles a prior greeting from this sender that was dismissed and followed by muting.,0.96,message_0014
+msg_035,digest,promotion,Legitimate-looking promotional outreach for an international payouts service with no urgent or risky elements.,0.98,none
+msg_101,digest,personal,"Caring household update is useful but non-urgent, explicitly needs no reply, and arrived during do-not-disturb hours.",0.97,message_0268;message_0229;message_0370
+msg_041,mute,promotion,Generic business survey solicitation with vague affiliation and no time-sensitive value.,0.89,none
+msg_011,mute,forward,Generic high-forward-count positivity chain message with no actionable or personal content.,0.98,none
+msg_110,mute,scam,Impersonates a security alert and pressures the recipient to disclose a login verification code.,0.99,none
+msg_095,mute,scam,High-risk phishing message requests a wallet PIN through an untrusted payment-verification link.,0.99,none
+msg_074,mute,scam,Forwarded property ad pressures immediate token payment before registry papers and uses generic mismatched contact details.,0.94,none
+msg_073,mute,scam,Forwarded account-threat message pressures immediate verification and exhibits phishing-style urgency.,0.94,none
+msg_054,mute,scam,"Unsolicited loan release claim requests an upfront processing fee and uses time pressure, consistent with an advance-fee scam.",0.98,none
+msg_068,digest,event,Non-urgent group planning update; attendance will be checked later via a poll.,0.97,none
+msg_100,notify,urgent,Direct operational alert requests immediate help before a client escalation in 20 minutes.,0.99,none
+msg_062,digest,business_update,Tomorrow's fire-alarm and elevator test is useful operational information but does not require interruption now; the attached forwarded missing-person poster appears unrelated.,0.91,none
+msg_096,notify,urgent,A direct message says the user's passport was found at their building reception and must be collected before 18:00.,0.93,none
+msg_043,notify,urgent,Time-sensitive water collection alert says the tanker will leave Gate 2 in 15 minutes.,0.96,none
+msg_077,notify,event,"Tomorrow's field trip requires consent and preparation, with the bus list closing this evening.",0.98,none
+msg_081,notify,urgent,Time-sensitive school transport pickup location change requiring arrival at Gate 2 by 3:40.,0.98,none
+msg_025,digest,business_update,Legitimate-looking order progress update with no links or scam signals; useful but not time-critical.,0.98,none
+msg_084,mute,promotion,"Unsolicited automated credit-card promotion offering cashback, travel discounts, and a lifetime-free card.",0.98,none
+msg_022,notify,payment,Time-sensitive society payment reminder aligns with prior legitimate admin notices and the user actively engages with this group.,0.90,message_0068;message_0029

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import time
 from typing import Any, Literal
 
 from langchain_core.messages import HumanMessage, SystemMessage
@@ -21,7 +22,9 @@ from .models import (
 )
 from .prompts import SYSTEM_PROMPT, build_message_prompt
 from .retrieval import HistoryRepository
+from .retry import RetryNotice, retry_call, safe_error_category
 from .tools import create_phase2_tools, tools_by_name
+from .tracing import TraceRecorder
 
 
 MAX_MODEL_ATTEMPTS = 6
@@ -41,7 +44,7 @@ def create_openai_model() -> Any:
         use_responses_api=True,
         reasoning={"effort": reasoning_effort},
         timeout=60,
-        max_retries=2,
+        max_retries=0,
     )
 
 
@@ -52,14 +55,18 @@ class MessageRouter:
         output_store: OutputStore,
         history_repository: HistoryRepository | None = None,
         media_processor: MediaProcessor | None = None,
+        trace: TraceRecorder | None = None,
+        sleep: Any | None = None,
     ) -> None:
+        self.trace = trace
+        self.sleep = sleep
         self.output_store = output_store
         self.history_repository = history_repository or HistoryRepository(
             output_store.dataset_dir
         )
-        self.media_processor = media_processor or MediaProcessor()
+        self.media_processor = media_processor or MediaProcessor(trace=trace, sleep=sleep)
         self.tools = create_phase2_tools(
-            output_store, self.history_repository, self.media_processor
+            output_store, self.history_repository, self.media_processor, trace
         )
         self.tool_map = tools_by_name(self.tools)
         self.write_tool = self.tool_map[TERMINAL_TOOL]
@@ -93,7 +100,46 @@ class MessageRouter:
         return builder.compile()
 
     def _orchestrator_node(self, state: RouterState) -> dict[str, Any]:
-        response = self.bound_model.invoke(state["messages"])
+        message_id = state["incoming"].message_id
+        graph_attempt = state.get("attempts", 0) + 1
+        began = time.perf_counter()
+        if self.trace is not None:
+            self.trace.emit("model_attempt", message_id=message_id, attempt=graph_attempt, status="started")
+
+        def on_retry(notice: RetryNotice) -> None:
+            if self.trace is not None:
+                self.trace.emit(
+                    "retry", message_id=message_id, operation="orchestrator",
+                    attempt=notice.attempt, next_attempt=notice.next_attempt,
+                    delay_seconds=notice.delay_seconds, error_category=notice.error_category,
+                )
+                self.trace.show(
+                    f"  retry orchestrator in {notice.delay_seconds:.1f}s ({notice.error_category})",
+                    "yellow",
+                )
+
+        kwargs: dict[str, Any] = {"on_retry": on_retry}
+        if self.sleep is not None:
+            kwargs["sleep"] = self.sleep
+        try:
+            response = retry_call(
+                "orchestrator", lambda: self.bound_model.invoke(state["messages"]), **kwargs
+            )
+        except Exception as exc:
+            if self.trace is not None:
+                self.trace.emit(
+                    "model_attempt", message_id=message_id, attempt=graph_attempt,
+                    status="error", duration_ms=round((time.perf_counter() - began) * 1000, 2),
+                    error_category=safe_error_category(exc),
+                )
+            raise
+        if self.trace is not None:
+            calls = [str(call.get("name", "")) for call in getattr(response, "tool_calls", []) or []]
+            self.trace.emit(
+                "model_attempt", message_id=message_id, attempt=graph_attempt,
+                status="ok", duration_ms=round((time.perf_counter() - began) * 1000, 2),
+                tool_decisions=calls,
+            )
         return {"messages": [response], "attempts": state.get("attempts", 0) + 1}
 
     @staticmethod
@@ -201,6 +247,15 @@ class MessageRouter:
     def _fallback_node(self, state: RouterState) -> dict[str, Any]:
         classification = self._fallback_classification(state["incoming"])
         self.output_store.upsert(state["incoming"].message_id, classification)
+        if self.trace is not None:
+            self.trace.emit(
+                "fallback", message_id=state["incoming"].message_id,
+                error_category="orchestrator_exhausted", classification=classification,
+            )
+            self.trace.emit(
+                "classification", message_id=state["incoming"].message_id,
+                classification=classification, degraded=True, system_failure=True,
+            )
         return {
             "classification": classification,
             "finalized": True,
@@ -273,6 +328,15 @@ class MessageRouter:
         except Exception as exc:
             classification = self._fallback_classification(message)
             self.output_store.upsert(message.message_id, classification)
+            if self.trace is not None:
+                self.trace.emit(
+                    "fallback", message_id=message.message_id,
+                    error_category=safe_error_category(exc), classification=classification,
+                )
+                self.trace.emit(
+                    "classification", message_id=message.message_id,
+                    classification=classification, degraded=True, system_failure=True,
+                )
             failed_state: RouterState = {
                 **initial_state,
                 "classification": classification,
